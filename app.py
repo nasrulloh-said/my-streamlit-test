@@ -2,11 +2,7 @@ import streamlit as st
 import json
 from datetime import datetime
 from pathlib import Path
-st.set_page_config(
-    page_title="Plant Monitoring Dashboard",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
+
 
 # ---------- ตั้งค่า ----------
 DATA_DIR = Path("data")
@@ -44,3 +40,5 @@ if IMG_PATH.exists():
     st.image(str(IMG_PATH), caption="Latest Annotated Image", use_container_width=True)
 else:
     st.warning("⚠️ ไม่พบไฟล์ latest.jpg")
+if st.button("View Details"):
+    st.switch_page("pages/1_Details.py")
