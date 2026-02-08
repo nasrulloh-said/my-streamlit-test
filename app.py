@@ -39,4 +39,5 @@ if IMG_PATH.exists():
     st.image(str(IMG_PATH), caption="Latest Annotated Image", use_container_width=True)
 else:
     st.warning("⚠️ ไม่พบไฟล์ latest.jpg")
+st.page_link("pages/1_Details.py", label="View Details", icon="🔎")
 
