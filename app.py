@@ -2,6 +2,11 @@ import streamlit as st
 import json
 from datetime import datetime
 from pathlib import Path
+st.set_page_config(
+    page_title="Plant Monitoring Dashboard",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 # ---------- ตั้งค่า ----------
 DATA_DIR = Path("data")
