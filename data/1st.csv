@@ -31,4 +31,4 @@ date,time,PLA_cm2,growth_rate,mask_path
 06/02/2026,12:30:11,105460.4065,4517.356756539666,/home/pi/projects/myproj/Output/2026-02-06/mask_12-30-10.png
 07/02/2026,12:30:05,108728.3428,3267.9362750399014,/home/pi/projects/myproj/Output/2026-02-07/mask_12-30-05.png
 08/02/2026,12:30:06,110887.4088,2159.0660400702764,/home/pi/projects/myproj/Output/2026-02-08/mask_12-30-05.png
-08/02/2026,23:51:02,0.0,-110887.4088,/home/pi/projects/myproj/Output/2026-02-08/mask_23-51-01.png
+09/02/2026,12:30:05,112140.6642,1253.2554398072534,/home/pi/projects/myproj/Output/2026-02-09/mask_12-30-05.png
