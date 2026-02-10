@@ -75,12 +75,12 @@ with right:
     st.subheader("Latest Measurements")
 
     st.metric(
-        label="PLA (cm²)",
+        label="PLA (mm²)",
         value=f"{pla_latest:.2f}" if isinstance(pla_latest, (int, float)) else str(pla_latest)
     )
 
     st.metric(
-        label="Growth Rate (cm²/day)",
+        label="Growth Rate (mm²/day)",
         value=f"{growth_latest:.2f}" if isinstance(growth_latest, (int, float)) else str(growth_latest)
     )
 
@@ -99,7 +99,7 @@ st.divider()
 # ---------- กราฟ ----------
 if df_plot is not None and len(df_plot) > 1:
     st.subheader("Projected Leaf Area (PLA) vs Time")
-    st.line_chart(df_plot.set_index("dt")["PLA_cm2"])
+    st.line_chart(df_plot.set_index("dt")["PLA_mm2"])
 
     st.subheader("Growth Rate (dA/dt)")
     st.bar_chart(df_plot.set_index("dt")["growth_rate"])
