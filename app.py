@@ -1,46 +1,90 @@
 import streamlit as st
+import pandas as pd
 import json
-from datetime import datetime
 from pathlib import Path
 
+st.set_page_config(
+    page_title="Plant Monitoring Dashboard",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
-# ---------- ตั้งค่า ----------
 DATA_DIR = Path("data")
-JSON_PATH = DATA_DIR / "latest.json"
-IMG_PATH  = DATA_DIR / "latest.jpg"
-
-st.set_page_config(page_title="Plant Monitoring Dashboard", layout="wide")
+LATEST_JSON = DATA_DIR / "latest.json"
+LATEST_IMG  = DATA_DIR / "latest.jpg"
+CSV_PATH    = DATA_DIR / "1st.csv"
 
 st.title("🌱 Plant Monitoring Dashboard")
 
-# ---------- ตรวจว่ามีข้อมูลไหม ----------
-if not JSON_PATH.exists():
-    st.error("❌ ไม่พบไฟล์ latest.json")
-    st.stop()
+# ---------- โหลด latest.json ----------
+latest = {}
+if LATEST_JSON.exists():
+    latest = json.loads(LATEST_JSON.read_text(encoding="utf-8"))
 
-# ---------- โหลดข้อมูล ----------
-with open(JSON_PATH, "r") as f:
-    data = json.load(f)
+pla_latest = latest.get("pla", None)
+growth_latest = latest.get("growth_rate", None)
+ts_latest = latest.get("timestamp", "N/A")
 
-timestamp = data.get("timestamp", "N/A")
-pla = data.get("pla", "N/A")
-growth = data.get("growth_rate", "N/A")
+# ---------- โหลด CSV สำหรับกราฟ ----------
+df = None
+if CSV_PATH.exists():
+    df = pd.read_csv(CSV_PATH)
+    df["dt"] = pd.to_datetime(df["date"] + " " + df["time"], dayfirst=True, errors="coerce")
+    df = df.dropna(subset=["dt"]).sort_values("dt")
+else:
+    st.warning("ยังไม่พบ data/1st.csv (รอให้ Pi push มาก่อน)")
 
-# ---------- แสดงค่า ----------
-col1, col2, col3 = st.columns(3)
+# ---------- ตัวกรองช่วงเวลา ----------
+colf1, colf2 = st.columns([1, 3])
+with colf1:
+    window = st.selectbox("Show", ["7 days", "14 days", "30 days", "All"], index=3)
 
-col1.metric("📐 PLA", f"{pla}")
-col2.metric("📈 Growth Rate", f"{growth}")
-col3.metric("⏱️ Timestamp", timestamp)
+if df is not None and len(df) > 0 and window != "All":
+    days = int(window.split()[0])
+    cutoff = df["dt"].max() - pd.Timedelta(days=days)
+    df_plot = df[df["dt"] >= cutoff].copy()
+else:
+    df_plot = df
+
+# ---------- Status logic (ปรับ threshold ได้) ----------
+status = "N/A"
+if isinstance(growth_latest, (int, float)):
+    # ตัวอย่าง: growth < 1.0 = Near Harvest (คุณปรับได้)
+    status = "Near Harvest" if growth_latest < 1.0 else "Growing"
+
+# ---------- Metrics แถวบน ----------
+m1, m2, m3, m4 = st.columns(4)
+m1.metric("PLA (cm²)", f"{pla_latest:.2f}" if isinstance(pla_latest, (int, float)) else str(pla_latest))
+m2.metric("Growth Rate (cm²/day)", f"{growth_latest:.2f}" if isinstance(growth_latest, (int, float)) else str(growth_latest))
+m3.metric("Timestamp", ts_latest)
+m4.metric("Status", status)
 
 st.divider()
 
-# ---------- แสดงรูป ----------
-if IMG_PATH.exists():
-    st.image(str(IMG_PATH), caption="Latest Annotated Image", use_container_width=True)
+# ---------- รูปล่าสุด + สรุป ----------
+left, right = st.columns([1.2, 1.8])
+
+with left:
+    if LATEST_IMG.exists():
+        st.image(str(LATEST_IMG), caption="Latest Annotated Image", use_container_width=True)
+    else:
+        st.info("No latest image yet (data/latest.jpg)")
+
+with right:
+    st.subheader("Trends")
+    if df_plot is not None and len(df_plot) > 1:
+        st.caption(f"Records: {len(df_plot)}  |  From: {df_plot['dt'].min()}  To: {df_plot['dt'].max()}")
+    else:
+        st.caption("Not enough data to plot yet.")
+
+st.divider()
+
+# ---------- กราฟ ----------
+if df_plot is not None and len(df_plot) > 1:
+    st.subheader("Projected Leaf Area (PLA) vs Time")
+    st.line_chart(df_plot.set_index("dt")["PLA_cm2"])
+
+    st.subheader("Growth Rate (dA/dt)")
+    st.bar_chart(df_plot.set_index("dt")["growth_rate"])
 else:
-    st.warning("⚠️ ไม่พบไฟล์ latest.jpg")
-
-
-if st.button("View Details"):
-    st.switch_page("pages/1_Details.py")
+    st.warning("ข้อมูลใน CSV ยังไม่พอสำหรับทำกราฟ")
