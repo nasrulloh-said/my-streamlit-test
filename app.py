@@ -53,11 +53,7 @@ if isinstance(growth_latest, (int, float)):
     status = "Near Harvest" if growth_latest < 1.0 else "Growing"
 
 # ---------- Metrics แถวบน ----------
-m1, m2, m3, m4 = st.columns(4)
-m1.metric("PLA (cm²)", f"{pla_latest:.2f}" if isinstance(pla_latest, (int, float)) else str(pla_latest))
-m2.metric("Growth Rate (cm²/day)", f"{growth_latest:.2f}" if isinstance(growth_latest, (int, float)) else str(growth_latest))
-m3.metric("Timestamp", ts_latest)
-m4.metric("Status", status)
+
 
 st.divider()
 
