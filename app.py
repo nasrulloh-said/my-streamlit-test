@@ -99,7 +99,7 @@ st.divider()
 # ---------- กราฟ ----------
 if df_plot is not None and len(df_plot) > 1:
     st.subheader("Projected Leaf Area (PLA) vs Time")
-    st.line_chart(df_plot.set_index("dt")["PLA_mm2"])
+    st.line_chart(df_plot.set_index("dt")["PLA_cm2"])
 
     st.subheader("Growth Rate (dA/dt)")
     st.bar_chart(df_plot.set_index("dt")["growth_rate"])
