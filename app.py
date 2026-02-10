@@ -61,21 +61,42 @@ m4.metric("Status", status)
 
 st.divider()
 
-# ---------- รูปล่าสุด + สรุป ----------
-left, right = st.columns([1.2, 1.8])
+
+# ---------- รูปล่าสุด + ตัวเลขด้านขวา ----------
+left, right = st.columns([1.2, 1])
 
 with left:
     if LATEST_IMG.exists():
-        st.image(str(LATEST_IMG), caption="Latest Annotated Image", use_container_width=True)
+        st.image(
+            str(LATEST_IMG),
+            caption="Latest Annotated Image",
+            use_container_width=True
+        )
     else:
-        st.info("No latest image yet (data/latest.jpg)")
+        st.info("No latest image yet")
 
 with right:
-    st.subheader("Trends")
-    if df_plot is not None and len(df_plot) > 1:
-        st.caption(f"Records: {len(df_plot)}  |  From: {df_plot['dt'].min()}  To: {df_plot['dt'].max()}")
-    else:
-        st.caption("Not enough data to plot yet.")
+    st.subheader("Latest Measurements")
+
+    st.metric(
+        label="PLA (cm²)",
+        value=f"{pla_latest:.2f}" if isinstance(pla_latest, (int, float)) else str(pla_latest)
+    )
+
+    st.metric(
+        label="Growth Rate (cm²/day)",
+        value=f"{growth_latest:.2f}" if isinstance(growth_latest, (int, float)) else str(growth_latest)
+    )
+
+    st.metric(
+        label="Timestamp",
+        value=ts_latest
+    )
+
+    st.metric(
+        label="Status",
+        value=status
+    )
 
 st.divider()
 
